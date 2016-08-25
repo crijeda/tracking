@@ -31,6 +31,9 @@ Template.ListTwitterSearch.helpers({
     var tokens = TwitterTokens.find().fetch();
     return tokens
   },
+   loading: function () {
+    return Session.get('loading')
+  },
 });
 
 Template.ListTwitterSearch.events({
@@ -48,9 +51,10 @@ Template.ListTwitterSearch.events({
     if(typeof maxcant !== "undefined"){
     Session.set('maxcant', $('#maxcant').val()); 
     }
-
+    Session.set('loading', true);
     Meteor.call('getTwitterTracks',test,token,maxcant, function(error, result){
       if(error){
+        Session.set('loading', false);
         alert('Error');
       }else{
     Session.set('response',result);
@@ -60,6 +64,7 @@ Template.ListTwitterSearch.events({
           console.log(err);
 
         Session.set('q', data);
+        Session.set('loading', false);
         });
       }, 2500);
       }
@@ -73,7 +78,9 @@ Template.ListTwitterSearch.events({
     Session.set('token', undefined); 
     Session.set('from', undefined); 
     Session.set('to', undefined);
-    Session.set('more', 0); 
+    Session.set('more', 0);
+    Session.set('loading', false);
+
     return false
     },
     'click .more': function () {
@@ -117,6 +124,7 @@ Template.ListTwitterSearch.events({
     });
     },
     'click .refresh': function(event) {
+      Session.set('loading', true);
       Meteor.call('TotalTweets', function(err, data) {
         if (err)
           console.log(err);
