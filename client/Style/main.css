@@ -1,0 +1,12 @@
+body {
+   /* Move body of page below navbar. */
+}
+.dropdown-toggle{
+  height: 50px;
+  width: 100%;
+}
+.tokens{
+    border-style: solid;
+    padding: 30px;
+    border-color: gray;
+}

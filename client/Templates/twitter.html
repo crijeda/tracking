@@ -1,0 +1,128 @@
+<template name="ListTwitterSearch">
+    <div class="well">
+          <form class="form-horizontal" id="filter">
+            <div class="form-group">
+            <div class="fix-tokens" style="padding: 15px;">
+            {{>TwitterTokens}}
+            </div>
+            <div class="col-sm-2">
+              <label for="search">Query</label>
+              </div>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="search" name="search" placeholder="Ingresa una consulta">
+              </div>
+            </div>
+
+             <!-- <div class="form-group">
+             <div class="col-sm-2">
+              <label for="select">Origen</label>
+              </div>
+              <div class="col-sm-10">
+                <select id="select" name="select" class="form-control">
+                  <option value=".*.*" selected>TODOS</option>
+                  {{#each Origen}}
+                  <option value="{{_id}}">{{name}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div> -->
+             <div class="form-group">
+             <div class="col-sm-2">
+              <label for="select">Token</label>
+              </div>
+              <div class="col-sm-10">
+                <select id="token" name="token" class="form-control">             
+                 {{#each TwitterTokensList}}
+                  <option value="{{_id}}">{{_id}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+             <div class="form-group">
+             <div class="col-sm-2">
+              <label for="select">Max Resultados</label>
+              </div>
+              <div class="col-sm-10">
+                <select id="maxcant" name="maxcant" class="form-control">            
+                  <option value="100" selected>100</option>
+                  <option value="500">500</option>
+                  <option value="1000">1000</option>
+                  <option value="2000">2000</option>
+                  <option value="5000">5000</option>
+                </select>
+              </div>
+            </div>
+            <div>
+            Loading...
+            </div>
+           <!--  <div class="form-group">
+            <div class="col-sm-2">
+              <label for="from">Desde</label>
+              </div>
+              <div class="col-sm-10">
+                <input type="date" class="form-control" id="from" name="from">
+              </div>
+            </div>
+            <div class="form-group">
+            <div class="col-sm-2">
+              <label for="to">Hasta</label>
+              </div>
+              <div class="col-sm-10">
+                <input type="date" class="form-control" id="to" name="to">
+              </div>
+            </div> -->
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10" align="left">
+                <button type="button" class="btn btn-default clear">LIMPIAR</button>
+                <button type="submit" class="btn btn-primary search">BUSCAR</button>
+              </div>
+            </div>
+          </form>  
+           <div class="row well">
+          <div class="col-md-4" align="left">
+            <button type="button" class="btn btn-danger delete">BORRAR TODO ({{Total}})</button>
+          </div>
+          <div class="col-md-4" align="center">
+          <b>Mostrando ({{Result}} de {{Total}})</b>
+           <button type="button" class="btn btn-default refresh"><i class="glyphicon glyphicon-refresh"></i></button>
+          </div>
+          <div class="col-md-4" align="right">
+          <button type="button" class="btn btn-default download">DESCARGAR ({{Total}})</button>
+          </div>
+    </div>
+          <table class="table">
+        <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Texto</th>
+          <th>Usuario</th>
+          <th>Link</th>
+        </tr>
+        </thead>
+
+        <tbody>
+    
+        {{#each Tweets}}
+          <tr>
+            <td>{{DateFormat created_at}}</td>
+            <td>{{text}}</td>
+            <td>@{{user.screen_name}}</td>
+            <td>
+            <a href='https://twitter.com/{{user.screen_name}}/status/{{id_str}}' target="_blank">
+            <button type="submit" class="btn btn-primary">VER +
+            </button></a></td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>    
+    </div>
+    <div class="well">
+            <div align="center">
+              <input type="text" style="display:none;" name="TextBox" id="TextBox" value="1" />
+              <button type="submit" class="btn btn-default more">MOSTRAR +</button>
+          </div>
+          <div align="right">
+          <b>Mostrando ({{Result}} de {{Total}})</b>
+          </div>
+    </div>
+</template>
