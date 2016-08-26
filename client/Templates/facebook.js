@@ -1,6 +1,6 @@
-Template.ListTwitterSearch.rendered = function() {
+Template.ListFacebookSearch.rendered = function() {
 
-  Meteor.call('TotalTweets', function(err, data) {
+  Meteor.call('TotalPosts', function(err, data) {
   if (err)
     console.log(err);
 
@@ -8,7 +8,7 @@ Template.ListTwitterSearch.rendered = function() {
   });
   
 };
-Template.ListTwitterSearch.helpers({
+Template.ListFacebookSearch.helpers({
 
    DateFormat: function (date) {
     return moment(date).format("DD-MM-YYYYTHH:mm");
@@ -20,15 +20,15 @@ Template.ListTwitterSearch.helpers({
     Result: function () {
     return Session.get('result');
   },
-    Tweets: function () {
+    Posts: function () {
     var more = Session.get('more') || 5;
-    Meteor.subscribe("TwitterData",more);
-    var result = TwitterData.find({},{limit : more});
+    Meteor.subscribe("FacebookData",more);
+    var result = FacebookData.find({},{limit : more});
     Session.set('result', result.count());
     return result
   },
-  TwitterTokensList: function () {
-    var tokens = TwitterTokens.find().fetch();
+  FacebookTokensList: function () {
+    var tokens = FacebookTokens.find().fetch();
     return tokens
   },
    loading: function () {
@@ -36,7 +36,7 @@ Template.ListTwitterSearch.helpers({
   },
 });
 
-Template.ListTwitterSearch.events({
+Template.ListFacebookSearch.events({
 
     'click .search': function () { 
     var test = $('#search').val();
@@ -52,14 +52,14 @@ Template.ListTwitterSearch.events({
     Session.set('maxcant', $('#maxcant').val()); 
     }
     Session.set('loading', true);
-    Meteor.call('getTwitterTracks',test,token,maxcant, function(error, result){
+    Meteor.call('getFacebookTracks',test,token,maxcant, function(error, result){
       if(error){
         Session.set('loading', false);
         alert('Error');
       }else{
     Session.set('response',result);
     setTimeout(function () {
-        Meteor.call('TotalTweets', function(err, data) {
+        Meteor.call('TotalPosts', function(err, data) {
         if (err)
           console.log(err);
 
@@ -95,13 +95,13 @@ Template.ListTwitterSearch.events({
     Meteor.call('deleteCreateId',this._id);
     },
      'click .delete': function () {
-      var r = confirm("Estas Seguro que quieres Borar Todos Los Tweets?");
+      var r = confirm("Estas Seguro que quieres Borar Todos Los Posts?");
       if (r == true) {
           x = "You pressed OK!";
-          Meteor.call("DeleteTweets");
+          Meteor.call("DeletePosts");
           Meteor.call('download', function(err, response) {
             if(response){
-              Meteor.call('TotalTweets', function(err, data) {
+              Meteor.call('TotalPosts', function(err, data) {
                 if (err)
                   console.log(err);
 
@@ -114,9 +114,9 @@ Template.ListTwitterSearch.events({
       }
     
     },
-   'click .download': function(event) {
-    var nameFile = 'twitter.csv';
-    Meteor.call('download', function(err, fileContent) {
+   'click .downloadfb': function(event) {
+    var nameFile = 'facebook.csv';
+    Meteor.call('downloadfb', function(err, fileContent) {
       if(fileContent){
         var blob = new Blob([fileContent], {type: "text/plain;charset=utf-8"});
         saveAs(blob, nameFile);
@@ -125,7 +125,7 @@ Template.ListTwitterSearch.events({
     },
     'click .refresh': function(event) {
       Session.set('loading', true);
-      Meteor.call('TotalTweets', function(err, data) {
+      Meteor.call('TotalPosts', function(err, data) {
         if (err)
           console.log(err);
 

@@ -1,7 +1,7 @@
 <template name="Home">
   <div class="container">
   	<h1>Bienvenido a Social Tracking ® 2016</h1>
-       <!-- <button type="button" class="btn btn-default twitter">Leer Twitter</button>
+<!--        <button type="button" class="btn btn-default twitter">Leer Twitter</button>
        <button type="button" class="btn btn-default facebook">Leer Facebook</button>
        <button type="button" class="btn btn-default instagram">Leer Instagram</button> -->
    </div>
@@ -18,7 +18,7 @@
 	      <div class="caption">
 	        <h3>Twitter Tokens</h3>
 	        <h2>{{twcant}}</h2>
-	        <p><a href="{{pathFor 'TwitterTokens'}}" class="btn btn-primary" role="button">Agregar+</a></p>
+	        <p><a href="{{pathFor 'TwitterTokensForm'}}" class="btn btn-default" role="button">Agregar+</a></p>
 	      </div>
 	    </div>
 	  </div>
@@ -27,8 +27,8 @@
 	      <img src="http://icons.iconarchive.com/icons/yootheme/social-bookmark/512/social-facebook-button-blue-icon.png" alt="Facebook" style="height:200px;">
 	      <div class="caption">
 	        <h3>Facebook Tokens</h3>
-	        <h2>0</h2>
-	        <p><a href="#" class="btn btn-primary" role="button">Agregar+</a></p>
+	        <h2>{{fbcant}}</h2>
+	        <p><a href="{{pathFor 'FacebookTokensForm'}}" class="btn btn-default" role="button">Agregar+</a></p>
 	      </div>
 	    </div>
 	  </div>
@@ -38,7 +38,7 @@
 	      <div class="caption">
 	        <h3>Instagram Tokens</h3>
 	        <h2>0</h2>
-	        <p><a href="#" class="btn btn-primary" role="button">Agregar+</a></p>
+	        <p><a href="#" class="btn btn-default" role="button">Agregar+</a></p>
 	      </div>
 	    </div>
 	  </div>

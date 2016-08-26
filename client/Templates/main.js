@@ -12,6 +12,10 @@ Template.Home.helpers({
     var tokens = TwitterTokens.find().fetch();
     return tokens.length;
   },
+  fbcant: function () {
+    var tokens = FacebookTokens.find().fetch();
+    return tokens.length;
+  },
   logocolor: function (cant) {
     if(cant == 0){
       return '-webkit-filter: grayscale(100%); filter: grayscale(100%);'

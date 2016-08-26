@@ -1,0 +1,55 @@
+<template name="FacebookTokensForm">
+<div class="container">
+      <div class="starter-template">
+        <h1>Tokens Creados</h1>
+        <p class="lead">Este es el detalle de tokens que se han creado para que funcione la plataforma con Facebook.</p>
+      </div>
+</div>
+<div class="container" style="padding-top: 20px;">
+{{>FacebookTokens}}
+</div>
+<div class="container">
+      <div class="starter-template">
+        <h1>Ingresar Tokens</h1>
+        <p class="lead">Aqui se deben ingresar los tokens para realizar las consultas a Facebook.</p>
+      </div>
+</div>
+<div class="container">
+
+ 	{{#autoForm collection='FacebookTokens' id="AddToken" type="method"
+      meteormethod="addFacebookTokens" resetOnSuccess=true}}
+          <fieldset>
+            <!-- <legend>Creación de Campaña</legend> -->
+              {{> afQuickField name="app_id"}}
+              {{> afQuickField name="app_secret"}}
+          </fieldset>
+          <div align="right">
+          <button type="submit" class="btn btn-primary">CREAR</button>
+          </div>
+  {{/autoForm}} 
+</div>
+   
+</template>
+
+<template name='FacebookTokens'>
+  
+    <ul class="list-group">
+    <li class="list-group-item">
+      <span class="badge">{{twcant}}</span>
+      <b>Facebook Tokens</b>
+    </li>
+    {{#each tokens}}
+    <li class="list-group-item">
+      <span class="badge" style="width:40%;"> <div class="progress-bar progress-bar-striped active" role="progressbar"
+  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:{{perecent _id}}%">
+    {{requests _id}}/200
+  </div></span>
+      {{_id}}
+    </li>
+    {{/each}}
+     <li class="list-group-item">
+      <span class="badge">{{totalrequests}}</span>
+      <b>Total de Consultas realizadas</b>
+    </li>
+  </ul>
+</template>

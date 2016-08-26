@@ -126,12 +126,85 @@ Meteor.methods({
 		console.log(users);
 	});
     },
-     getFacebookTracks: function() {
+     getFacebookTracks: function(query,token,maxcant) {
+     var cicles = maxcant/100;
+     var tokens = FacebookTokens.find({_id:token}).fetch();
+  	 var token_id = tokens[0]._id;
+  	 var app_id = tokens[0].app_id;
+	 var app_secret = tokens[0].app_secret;	
+     var Fiber = require('fibers');
+     var tracks = [];
      var graph = require('fbgraph');
-	   graph
-	  .get("?access_token=159483481063866|cBn7lq8pGguMFUsndqbmmewYjPs", function(err, res) {
-	    console.log(res); // { id: '4', name: 'Mark Zuckerberg'... } 
-	  });
+     graph.setVersion("2.7");
+     var fanpage =query;
+     //205112366200648
+     var query ='/feed?fields=created_time,updated_time,from,id,type,status_type,to,message,picture,link,source,name,caption,description,icon,object_id,story,application,permalink_url,likes.limit(0).summary(true),shares,comments.limit(0).summary(true),reactions.limit(0).summary(true)';
+
+     function firstSearch () {
+		  var fiber = Fiber.current;
+		  	 graph.get(fanpage+query+"&access_token="+app_id+"|"+app_secret+"&limit=100", function(err, res) {
+		  	 	Fiber(function () {			
+					var createdAt = moment().format("YYYY-MM-DDThh:mm:ss");
+					Requests.insert({token_id: token_id, createdAt: createdAt});
+				 }).run();
+			   if (res){
+			  	 var next_result = res.paging.next;
+			  	 if(typeof next_result !== 'undefined'){
+				 var next = next_result.split("/")[5] || undefined;
+				 }
+				 else{
+				 var next = undefined;
+				 }
+			  	 fiber.run(next);
+				  	 Fiber(function () {
+						_.each(res.data, function(value) {
+							   FacebookData.insert(value);
+						})
+					 }).run();
+			  	 }
+		  	 })
+
+		  var results = Fiber.yield();
+		  // console.log(results);
+		  return results;
+	}
+	function doAsyncWork (next_page) {
+		  var fiber = Fiber.current;
+		  setTimeout(function () {
+		  	 graph.get(fanpage+"/"+next_page, function(err, res) {
+		  	 	Fiber(function () {			
+					var createdAt = moment().format("YYYY-MM-DDThh:mm:ss");
+					Requests.insert({token_id: token_id, createdAt: createdAt});
+				 }).run();
+			   if (res){
+			  	 var next_result = res.paging.next;
+			  	 if(typeof next_result !== 'undefined'){
+				 var next = next_result.split("/")[5] || undefined;
+				 }
+				 else{
+				 var next = undefined;
+				 }
+			  	 fiber.run(next);
+				  	 Fiber(function () {
+						_.each(res.data, function(value) {
+							   FacebookData.insert(value);
+						})
+					 }).run();
+			  	 }
+		  	 })
+		  }, 1500);
+		  var results = Fiber.yield();
+		  // console.log(results);
+		  return results;
+	}
+	var next2 = firstSearch();
+	console.log(100)
+		for (i = 1; i < cicles; i++) {
+			if(typeof next2 !== 'undefined'){	
+				var next2 = doAsyncWork(next2);
+				console.log((i+1)*100)
+			}
+		}
     },
     download: function() {
     var data = [];
@@ -232,6 +305,109 @@ Meteor.methods({
 	 var tweets = _.pluck(TwitterData.find().fetch(), '_id');
           _.each(tweets, function(value) {
               TwitterData.remove({_id:value});
+          })
+     return true
+	},
+	downloadfb: function() {
+    var data = [];
+
+		var collection = FacebookData.find().fetch();
+
+	  _.each(collection, function(value) {
+
+		if (value.comments.summary.total_count > 0){
+		var hascomments = true;	
+		}else{
+		var hascomments = false;
+		}
+	  	if(typeof value.to !== 'undefined'){
+	  	var toid = value.to.data[0].id || '';
+	  	var toname = value.to.data[0].name || '';
+	  	}else{
+	  	var toid = '';
+	  	var toname = '';
+	  	}
+	  	if(typeof value.shares !== 'undefined'){
+	    var sharescount = value.shares.count;
+	  	}else{
+	  	var sharescount = '';
+	  	}
+	  	if(typeof value.aplication !== 'undefined'){
+	    var applicationname = value.aplication.name || '';
+		var applicationnamespace = value.aplication.namespace || '';
+		var applicationid = value.aplication.id || '';
+	  	}else{
+	  	var applicationname = '';
+		var applicationnamespace = '';
+		var applicationid = '';
+	  	}
+	  	if(typeof value.message !== 'undefined'){
+	    var message = value.message.replace(/(\r\n|\n|\r|)/gm,"");
+	  	}else{
+	  	var message = '';
+	  	}
+	  	if(typeof value.description !== 'undefined'){
+	    var description = value.description.replace(/(\r\n|\n|\r|)/gm,"");
+	  	}else{
+	  	var description = '';
+	  	}
+	  	if(typeof value.permalink_url !== 'undefined'){
+	    var permalink_url = value.permalink_url;
+	  	}else{
+	  	var permalink_url = '';
+	  	}
+
+		 data.push({
+		//'page': value.
+		'feeditemid': value.id || '',	
+		'created': value.created_time || '', 
+		'updated': value.updated_time || '',
+		// 'posterid': value.
+		'fromname': value.from.name || '',
+		// 'fromcategory': value.
+		'fromid': value.from.id || '',
+		'type': value.type || '',
+		'statustype': value.status_type || '',
+
+		'toid': toid || '',
+		'toname': toname || '',
+		//'tocategory': value.
+		'message': message || '',
+		// 'messageurlconded': value.
+		'commentlink': permalink_url || '',
+		'likelink': permalink_url || '',
+		'picture': value.picture || '',
+		'link': value.link || '',
+		'source': value.source || '',
+		'name': value.name || '',
+		'caption': value.caption || '',
+		'description': description || '',
+		'icon': value.icon || '',
+		'objectid': value.object_id || '',
+		'story': value.story || '',
+		'applicationname': applicationname || '',
+		'applicationnamespace': applicationnamespace || '',
+		'applicationid' : applicationid || '',
+		'likescount' : value.likes.summary.total_count || '',
+		'haslikes' : value.likes.summary.has_liked || '',
+		'hastatleasthismanylikes' : value.likes.summary.total_count || '',
+		'sharescount' : sharescount || '',
+		'commentscount' : value.comments.summary.total_count || '',
+		'hascomments' : hascomments || '',
+		'hasatlestthismanycomments' : value.comments.summary.total_count || '',
+		});
+	  });
+	  var heading = true; // Optional, defaults to true
+	  var delimiter = "\t" // Optional, defaults to ",";
+	  return exportcsv.exportToCSV(data, heading, delimiter);
+	},
+	TotalPosts: function() {
+	 return FacebookData.find().count()
+	},
+	DeletePosts: function() {
+	 var posts = _.pluck(FacebookData.find().fetch(), '_id');
+          _.each(posts, function(value) {
+              FacebookData.remove({_id:value});
           })
      return true
 	}, 	
